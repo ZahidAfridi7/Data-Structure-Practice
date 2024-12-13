@@ -13,6 +13,15 @@ class Dictionary:
     def __setitem__(self,key,value):
         self.put(key,value)
     
+    def __getitem__(self,key):
+        return self.get(key)  
+    def __str__(self):
+        for i in range(len(self.slots)):
+            if self.slots[i] != None:
+                print(self.slots[i],":",self.data[i], end=' ')
+        return "  "        
+              
+    
     def get(self,key):
         start_pos = self.hashFun(key)
         current_pos = start_pos
@@ -21,8 +30,8 @@ class Dictionary:
                 return self.data[current_pos]
             current_pos = self.reHash(current_pos)
             if current_pos == start_pos:
-                print ("Not Found")
-        print ("Not Found")            
+                return "Not Found"
+        return "None's: Not Found"           
         
     def put(self,key,value):
         hash_value = self.hashFun(key)
@@ -46,5 +55,6 @@ d1 = Dictionary(3)
 d1.put('c',1100)
 d1.put('ja',2000)
 d1.put('pyt',1000)
+print(d1['ddddd'])
 print(d1.slots)
 print(d1.data)
