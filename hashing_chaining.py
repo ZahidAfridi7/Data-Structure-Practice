@@ -7,38 +7,43 @@ class Node:
 class HashTable:
     def __init__(self, size):
         self.size = size  # Size of the hash table
-        self.table = [None] * self.size  # Create a table (array) of given size
-        
-    def _hash(self, key):
-      return hash(key) % self.size  # Python's built-in hash function and modulo
-      
+        self.table = [None] * self.size  
+          
     def search(self, key):
-        index = self._hash(key)  # Calculate the index
-        current = self.table[index]  # Start at the head of the linked list
+        index = self._hash(key)  
+        current = self.table[index]  
         
-        # Traverse through the list to find the key
+       
         while current:
             if current.key == key:
-                return current.value  # Return the value if key is found
-            current = current.next  # Move to the next node in the chain
-        return None  # Return None if the key is not found
+                return current.value  
+            current = current.next  
+        return None  
  
+    
     def delete(self, key):
-        index = self._hash(key)  # Calculate the index
-        current = self.table[index]  # Start at the head of the list
-        prev = None  # To keep track of the previous node for deletion
-        
+        """Delete a key-value pair from the hash table."""
+        index = self.hash_function(key)  # Get the index for the key
+        current = self.bucket[index]  # Start at the head node
+        prev = None  # Previous node to help with deletion
+
+        # If the head node contains the key, use delete_head
+        if current and current.key == key:
+            return self.delete_head(key)  # Delete the head node
+
+        # Traverse the linked list to find the key
         while current:
             if current.key == key:
-                if prev:
-                    prev.next = current.next  # Skip the current node (delete it)
-                else:
-                    self.table[index] = current.next  # If it's the first node, move head
-                return True  # Successfully deleted
-            prev = current  # Move to the next node
-            current = current.next
+                # Found the key, remove it by updating the previous node's next
+                prev.next = current.next
+                self.size -= 1
+                return True
+            prev = current  # Move prev to current
+            current = current.next  # Move current to the next node
+
         return False  # Key not found
 
+    
     def __setitem__(self, key, value):
         """Allows ht[key] = value."""
         self.insert(key, value)
@@ -61,14 +66,89 @@ class HashTable:
 
 class Dictionary:
     def __init__(self, capacity):
-        self.capacity = capacity  # Maximum capacity of the dictionary
-        self.size = 0  # Current size (number of elements)
-        self.bucket = self.make_array(self.capacity)  # Create an array for the hash table
+        self.capacity = capacity  
+        self.size = 0  
+        self.bucket = self.make_array(self.capacity)  
 
     def make_array(self, capacity):
         """Create an empty array with the given capacity."""
-        L = []  # Initialize an empty list
+        L = []  
         for i in range(capacity):
-            L.append(None)  # Append None for each slot in the array
+            L.append(None)  
         return L
+
+    def traverse(self):
+        """Traverse the hash table and print all key-value pairs."""
+        print("Hash Table Contents:")
+        for i in range(self.capacity):
+            print(f"Bucket {i}:", end=" ")
+            current = self.bucket[i]
+            if current is None:
+                print("Empty")
+            else:
+                while current:
+                    print(f"({current.key}, {current.value})", end=" -> ")
+                    current = current.next
+                print("None")  
+
+    def hash_function(self, key):
+      return abs(hash(key)) % self.capacity
+
+
+    def get_index_at_node(self, key):
+        """Find the index and node of a given key."""
+        index = self.hash_function(key)  
+        current = self.bucket[index] 
+        while current:
+            if current.key == key:  
+                return index
+            current = current.next  
+
+        return None  # Key not found  
     
+    
+    def get(self, key):
+        """Retrieve the value associated with the given key."""
+        index = self.hash_function(key)  # Get the index for the key
+        current = self.bucket[index]  # Start at the head of the chain at this index
+
+        # Traverse the linked list to find the key
+        while current:
+            if current.key == key:
+                return current.value  # Key found; return its value
+            current = current.next  # Move to the next node in the chain
+
+        return None  # Key not found
+    
+    def delete_head(self, key):
+        """Delete the head node at the given key."""
+        index = self.hash_function(key)  # Get the index for the key
+        current = self.bucket[index]  # Get the head node at this index
+        
+        # If the bucket is empty, there's nothing to delete
+        if not current:
+            return False
+        
+        # If the key is found in the head node
+        if current.key == key:
+            # Remove the head node by pointing to the next node
+            self.bucket[index] = current.next
+            self.size -= 1
+            return True
+        
+        return False  # Key not found at the head
+    
+              
+
+# Create a dictionary
+d = Dictionary(5)
+
+# Add linked list nodes manually for demonstration
+d.bucket[0] = Node("apple", 100)
+d.bucket[0].next = Node("banana", 200)
+
+d.bucket[2] = Node("cherry", 300)
+
+# Traverse and print the hash table
+d.traverse()
+                
